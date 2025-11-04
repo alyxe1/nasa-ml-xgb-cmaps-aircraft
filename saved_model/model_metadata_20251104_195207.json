@@ -1,0 +1,46 @@
+{
+  "model_type": "XGBoost Regressor",
+  "window_size": 50,
+  "feature_count": 850,
+  "feature_columns": [
+    "operational_setting_1",
+    "operational_setting_2",
+    "operational_setting_3",
+    "sensor_2",
+    "sensor_3",
+    "sensor_4",
+    "sensor_7",
+    "sensor_8",
+    "sensor_9",
+    "sensor_11",
+    "sensor_12",
+    "sensor_13",
+    "sensor_14",
+    "sensor_15",
+    "sensor_17",
+    "sensor_20",
+    "sensor_21"
+  ],
+  "training_samples": 12584,
+  "validation_samples": 3147,
+  "test_samples": 8255,
+  "model_params": {
+    "n_estimators": 300,
+    "learning_rate": 0.05,
+    "max_depth": 8,
+    "random_state": 42
+  },
+  "performance": {
+    "train_mae": 2.1568727441201934,
+    "train_rmse": 2.7847176487883947,
+    "train_r2": 0.9976494310362207,
+    "val_mae": 17.736851478256533,
+    "val_rmse": 26.986128404160596,
+    "val_r2": 0.7761927724352236,
+    "test_mae": 25.849539514399527,
+    "test_rmse": 35.723380375413015,
+    "test_r2": 0.5317253128492123
+  },
+  "training_time": "0:00:40.507582",
+  "training_date": "20251104_195207"
+}
