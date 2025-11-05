@@ -94,6 +94,16 @@ class RULPredictor:
             timestamp = model_name.split('_')[-1].replace('.pkl', '')
             params_path = f"saved_model/window_params_{timestamp}.pkl"
 
+            # 如果文件不存在，尝试查找最新的参数文件
+            if not os.path.exists(params_path):
+                saved_dir = Path("saved_model")
+                param_files = list(saved_dir.glob("window_params_*.pkl"))
+                if param_files:
+                    params_path = str(max(param_files, key=os.path.getctime))
+                    print(f"使用最新参数文件: {params_path}")
+                else:
+                    print("警告: 未找到窗口参数文件")
+
         if os.path.exists(params_path):
             self.window_params = joblib.load(params_path)
             print(f"窗口参数加载成功")
@@ -122,10 +132,14 @@ class RULPredictor:
         # 获取特征列
         if self.window_params and 'feature_columns' in self.window_params:
             feature_columns = self.window_params['feature_columns']
+            # 确保特征列存在于数据中
+            feature_columns = [col for col in feature_columns if col in data.columns]
+            print(f"使用模型训练时的特征列: {feature_columns}")
         else:
             # 使用所有非元数据列
             feature_columns = [col for col in data.columns
                              if col not in ['unit_number', 'time_in_cycles', 'RUL']]
+            print(f"使用数据中的所有特征列: {feature_columns}")
 
         for unit in sorted(data['unit_number'].unique()):
             unit_data = data[data['unit_number'] == unit].copy()
@@ -290,20 +304,37 @@ def main():
 
         # 加载测试数据
         test_df = pd.read_csv('CMaps/test_FD001.txt', sep='\s+', header=None)
-        columns = ['unit_number', 'time_in_cycles', 'operational_setting_1',
-                  'operational_setting_2', 'operational_setting_3'] + \
-                 [f'sensor_{i}' for i in range(1, 22)]
+        columns = ['unit_number', 'time_in_cycles', 'setting_1', 'setting_2', 'setting_3'] + \
+                 [f'sensor{i}' for i in range(1, 22)]
         test_df.columns = columns
+
+        # 删除空列和常数列（与notebook保持一致）
+        test_df.drop(columns=[26, 27], inplace=True, errors='ignore')
+        columns_to_drop = ['sensor1', 'sensor6', 'sensor10', 'sensor16', 'sensor18', 'sensor19']
+        test_df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
+
+        # 传感器名称映射（与notebook保持一致）
+        sensor_mapping = {
+            'sensor2': 'T24', 'sensor3': 'T30', 'sensor4': 'T50', 'sensor7': 'P30',
+            'sensor8': 'Nf', 'sensor9': 'Nc', 'sensor11': 'Ps30', 'sensor12': 'phi',
+            'sensor13': 'NRf', 'sensor14': 'BPR', 'sensor15': 'htBleed', 'sensor17': 'W31',
+            'sensor20': 'W32'
+        }
+
+        for old_name, new_name in sensor_mapping.items():
+            if old_name in test_df.columns:
+                test_df.rename(columns={old_name: new_name}, inplace=True)
 
         # 加载RUL数据
         rul_df = pd.read_csv('CMaps/RUL_FD001.txt', sep='\s+', header=None)
         rul_df.columns = ['RUL']
+        rul_df.index = range(1, len(rul_df) + 1)  # 发动机编号从1开始
 
         # 准备测试数据
         test_with_rul = []
         for unit in test_df['unit_number'].unique():
             unit_test_data = test_df[test_df['unit_number'] == unit].copy()
-            unit_rul = rul_df.loc[unit - 1, 'RUL']
+            unit_rul = rul_df.loc[unit, 'RUL']
 
             unit_test_data = unit_test_data.sort_values('time_in_cycles')
             max_cycles = unit_test_data['time_in_cycles'].max()

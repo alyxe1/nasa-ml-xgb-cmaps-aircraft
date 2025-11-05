@@ -1,0 +1,11 @@
+{
+  "engine_id": 20,
+  "current_position": 5,
+  "window_start_cycle": 6,
+  "window_end_cycle": 55,
+  "total_cycles": 184,
+  "last_prediction_time": "2025-11-05 12:24:00",
+  "simulation_start_time": "2025-11-05 12:19:37",
+  "total_predictions": 5,
+  "is_running": true
+}

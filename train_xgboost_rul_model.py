@@ -45,10 +45,9 @@ class XGBoostRULTrainer:
         self.model = None
         self.metadata = {}
 
-        # 重要传感器配置（基于notebook分析）
-        self.important_sensors = [2, 3, 4, 7, 8, 9, 11, 12, 13, 14, 15, 17, 20, 21]
-        self.sensor_cols = [f'sensor_{i}' for i in self.important_sensors]
-        self.operational_cols = ['operational_setting_1', 'operational_setting_2', 'operational_setting_3']
+        # 重要传感器配置（与notebook保持一致）
+        self.sensor_cols = ['T24', 'T30', 'T50', 'P30', 'Nf', 'Nc', 'Ps30', 'phi', 'NRf', 'BPR', 'htBleed', 'W31', 'W32']
+        self.operational_cols = ['setting_1', 'setting_2']
         self.feature_cols = self.operational_cols + self.sensor_cols
 
         print(f"初始化XGBoost RUL训练器:")
@@ -62,9 +61,8 @@ class XGBoostRULTrainer:
         print("\n=== 加载数据 ===")
 
         # 定义列名
-        columns = ['unit_number', 'time_in_cycles', 'operational_setting_1',
-                  'operational_setting_2', 'operational_setting_3'] + \
-                 [f'sensor_{i}' for i in range(1, 22)]
+        columns = ['unit_number', 'time_in_cycles', 'setting_1', 'setting_2', 'setting_3'] + \
+                 [f'sensor{i}' for i in range(1, 22)]
 
         # 加载训练数据
         train_path = self.data_dir / 'train_FD001.txt'
@@ -73,7 +71,7 @@ class XGBoostRULTrainer:
 
         self.train_df = pd.read_csv(train_path, sep='\s+', header=None)
         self.train_df.columns = columns
-        print(f"训练数据: {self.train_df.shape}")
+        print(f"原始训练数据: {self.train_df.shape}")
 
         # 加载测试数据
         test_path = self.data_dir / 'test_FD001.txt'
@@ -82,7 +80,41 @@ class XGBoostRULTrainer:
 
         self.test_df = pd.read_csv(test_path, sep='\s+', header=None)
         self.test_df.columns = columns
-        print(f"测试数据: {self.test_df.shape}")
+        print(f"原始测试数据: {self.test_df.shape}")
+
+        # 数据预处理（与notebook保持一致）
+        print("执行数据预处理...")
+
+        # 删除空列
+        for df in [self.train_df, self.test_df]:
+            df.drop(columns=[26, 27], inplace=True, errors='ignore')
+
+        # 删除常数列
+        columns_to_drop = ['sensor1', 'sensor6', 'sensor10', 'sensor16', 'sensor18', 'sensor19',
+                          'sensor22', 'sensor23', 'sensor24', 'sensor25']
+        for df in [self.train_df, self.test_df]:
+            df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
+
+        # 传感器名称映射（与notebook保持一致）
+        sensor_mapping = {
+            'sensor2': 'T24', 'sensor3': 'T30', 'sensor4': 'T50', 'sensor7': 'P30',
+            'sensor8': 'Nf', 'sensor9': 'Nc', 'sensor11': 'Ps30', 'sensor12': 'phi',
+            'sensor13': 'NRf', 'sensor14': 'BPR', 'sensor15': 'htBleed', 'sensor17': 'W31',
+            'sensor20': 'W32', 'sensor21': 'RUL'
+        }
+
+        for df_name, df in [('train_df', self.train_df), ('test_df', self.test_df)]:
+            for old_name, new_name in sensor_mapping.items():
+                if old_name in df.columns:
+                    df.rename(columns={old_name: new_name}, inplace=True)
+            # 更新引用
+            if df_name == 'train_df':
+                self.train_df = df
+            else:
+                self.test_df = df
+
+        print(f"预处理后训练数据: {self.train_df.shape}")
+        print(f"预处理后测试数据: {self.test_df.shape}")
 
         # 加载RUL数据
         rul_path = self.data_dir / 'RUL_FD001.txt'
@@ -91,6 +123,7 @@ class XGBoostRULTrainer:
 
         self.rul_df = pd.read_csv(rul_path, sep='\s+', header=None)
         self.rul_df.columns = ['RUL']
+        self.rul_df.index = range(1, len(self.rul_df) + 1)  # 发动机编号从1开始
         print(f"RUL数据: {self.rul_df.shape}")
 
         return self.train_df, self.test_df, self.rul_df
@@ -183,7 +216,7 @@ class XGBoostRULTrainer:
 
         for unit in self.test_df['unit_number'].unique():
             unit_test_data = self.test_df[self.test_df['unit_number'] == unit].copy()
-            unit_rul = self.rul_df.loc[unit - 1, 'RUL']  # RUL DataFrame索引从0开始
+            unit_rul = self.rul_df.loc[unit, 'RUL']  # RUL DataFrame索引从1开始
 
             # 为测试数据的每个时间点计算实际RUL
             unit_test_data = unit_test_data.sort_values('time_in_cycles')
