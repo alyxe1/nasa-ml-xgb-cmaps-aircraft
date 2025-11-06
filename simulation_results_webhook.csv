@@ -1,0 +1,6 @@
+timestamp,engine_id,window_start_cycle,window_end_cycle,predicted_rul,model_version,processing_time,webhook_success,webhook_failure
+2025-11-05 14:42:00,3,1,50,99.21200561523438,unknown,0.002,0,1
+2025-11-05 14:49:00,5,1,50,116.2598648071289,unknown,0.013,1,0
+2025-11-05 14:53:00,20,1,50,142.02183532714844,unknown,0.004,1,0
+2025-11-05 15:26:00,20,2,51,147.57815551757812,unknown,0.004,1,1
+2025-11-05 15:27:00,20,3,52,113.19390869140625,unknown,0.003,2,1
