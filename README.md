@@ -467,7 +467,7 @@ python realtime_engine_simulator_webhook.py --engine-id 10 &
 
 - **🔗 项目链接** / Project Link: [https://github.com/alyxe1/nasa-ml-xgb-cmaps-aircraft](https://github.com/alyxe1/nasa-ml-xgb-cmaps-aircraft)
 - **👨‍💻 作者** / Author: **Eddy**
-- **📧 邮箱** / Email: [your-email@example.com](mailto:your-email@example.com)
+- **📧 邮箱** / Email: [xuanhe.er@siemens.com](xuanhe.er@siemens.com)
 
 ---
 

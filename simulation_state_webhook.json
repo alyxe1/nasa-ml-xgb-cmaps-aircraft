@@ -1,14 +1,14 @@
 {
   "engine_id": 20,
-  "current_position": 3,
-  "window_start_cycle": 4,
-  "window_end_cycle": 53,
+  "current_position": 41,
+  "window_start_cycle": 42,
+  "window_end_cycle": 91,
   "total_cycles": 184,
-  "last_prediction_time": "2025-11-05 15:28:00",
+  "last_prediction_time": "2025-11-06 18:58:00",
   "simulation_start_time": "2025-11-05 14:52:23",
-  "total_predictions": 3,
-  "webhook_success_count": 2,
-  "webhook_failure_count": 1,
+  "total_predictions": 446,
+  "webhook_success_count": 3,
+  "webhook_failure_count": 443,
   "webhook_url": "http://54.238.253.106:5678/webhook-test/e72eda5c-1e4b-4466-8c0b-b3d385119a78",
   "is_running": false
 }

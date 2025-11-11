@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>系统架构.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="ai-agent%E9%A2%84%E6%B5%8B%E6%80%A7%E7%BB%B4%E6%8A%A4%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84">AI Agent预测性维护系统架构</h1>
+<h2 id="%E7%B3%BB%E7%BB%9F%E6%80%BB%E8%A7%88">系统总览</h2>
+<p>基于XGBoost时序预测和AI Agent智能分析的发动机剩余使用寿命（RUL）预测性维护系统，通过滑动窗口特征工程和梯度提升算法实现高精度预测，结合智能工作流自动化实现端到端的健康管理。</p>
+<h2 id="%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%9B%BE">系统架构图</h2>
+<pre><code class="language-mermaid"><div class="mermaid">graph TB
+    %% 数据源与预处理层
+    subgraph "📊 数据源与预处理层"
+        A1[NASA C-MAPS数据集] --> A2[数据清洗与标准化]
+        A2 --> A3[传感器特征选择<br/>15个关键传感器]
+        A3 --> A4[时序数据分割]
+        A4 --> A5[发动机单元分组]
+    end
+
+    %% 机器学习核心层
+    subgraph "🤖 机器学习核心层"
+        B1[滑动窗口特征工程<br/>窗口大小: 50周期<br/>步长: 1周期] --> B2[特征维度转换<br/>15×50=750维]
+        B2 --> B3[XGBoost训练引擎<br/>n_estimators: 300<br/>max_depth: 8<br/>learning_rate: 0.05]
+        B3 --> B4[模型验证与调优<br/>交叉验证: R²=0.52+<br/>MAE<27周期]
+        B4 --> B5[实时预测服务<br/>推理时间: <10ms]
+    end
+
+    %% 智能触发与决策层
+    subgraph "🧠 智能触发与决策层"
+        C1[预测数据接收器] --> C2[RUL阈值判断<br/>预警线: 120周期]
+        C2 -->|触发| C3[智能工作流启动]
+        C2 -->|正常| C4[状态记录更新]
+        C3 --> C5[AI Agent分析引擎]
+        C5 --> C6[DeepSeek大模型调用]
+        C6 --> C7[风险评估与建议生成]
+    end
+
+    %% 输出与应用层
+    subgraph "📤 输出与应用层"
+        D1[报告格式化引擎] --> D2[多模态输出<br/>HTML报告/可视化图表]
+        D2 --> D3[通知分发服务]
+        D3 --> D4[维护决策支持]
+        D4 --> D5[业务优化闭环]
+    end
+
+    %% 模型管理层
+    subgraph "🔧 模型管理层"
+        E1[模型版本控制] --> E2[超参数优化]
+        E2 --> E3[性能监控]
+        E3 --> E4[在线学习机制]
+    end
+
+    %% 数据流连接
+    A5 --> B1
+    B5 --> C1
+    C7 --> D1
+    D5 --> E2
+    E4 --> B3
+
+    %% 数据存储与监控
+    subgraph "💾 数据存储与监控"
+        F1[时序数据库] --> F2[模型存储仓库]
+        F2 --> F3[预测历史追踪]
+        F3 --> F4[系统健康监控]
+    end
+
+    %% 样式设置
+    classDef dataLayer fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef mlLayer fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef aiLayer fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef outputLayer fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef modelLayer fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef storageLayer fill:#f1f8e9,stroke:#33691e,stroke-width:2px
+
+    class A1,A2,A3,A4,A5 dataLayer
+    class B1,B2,B3,B4,B5 mlLayer
+    class C1,C2,C3,C4,C5,C6,C7 aiLayer
+    class D1,D2,D3,D4,D5 outputLayer
+    class E1,E2,E3,E4 modelLayer
+    class F1,F2,F3,F4 storageLayer
+</div></code></pre>
+<h2 id="%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3">机器学习核心技术详解</h2>
+<h3 id="1-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B">1. 滑动窗口特征工程</h3>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart LR
+    A[原始传感器时序数据] --> B[数据标准化]
+    B --> C[特征选择<br/>15个关键传感器]
+    C --> D[滑动窗口构建<br/>窗口大小: 50周期]
+    D --> E[窗口步进<br/>步长: 1周期]
+    E --> F[特征矩阵生成<br/>15×50=750维]
+    F --> G[特征向量化]
+
+    subgraph "关键传感器选择"
+        H1[T24 - 总温度]
+        H2[T30 - 总温度]
+        H3[T50 - 总温度]
+        H4[P30 - 总压]
+        H5[Nf - 风扇转速]
+        H6[Nc - 核心转速]
+        H7[Ps30 - 静压]
+        H8[phi - 压比]
+        H9[NRf - 风扇转速比]
+        H10[BPR - 旁通比]
+        H11[htBleed - 热引气]
+        H12[W31 - 燃油流量]
+        H13[W32 - 燃油流量]
+        H14[setting_1 - 操作设定]
+        H15[setting_2 - 操作设定]
+    end
+
+    C --> H1
+    H1 --> H2
+    H2 --> H3
+    H3 --> H4
+    H4 --> H5
+    H5 --> H6
+    H6 --> H7
+    H7 --> H8
+    H8 --> H9
+    H9 --> H10
+    H10 --> H11
+    H11 --> H12
+    H12 --> H13
+    H13 --> H14
+    H14 --> H15
+</div></code></pre>
+<h3 id="2-xgboost%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E4%B8%8E%E9%AA%8C%E8%AF%81">2. XGBoost模型训练与验证</h3>
+<pre><code class="language-mermaid"><div class="mermaid">graph TB
+    subgraph "📊 训练数据准备"
+        A1[滑动窗口特征矩阵<br/>15731×750] --> A2[RUL标签向量<br/>15731×1]
+        A2 --> A3[数据分割<br/>训练:验证:测试 = 8:2:2]
+        A3 --> A4[特征标准化]
+    end
+
+    subgraph "🤖 XGBoost模型架构"
+        B1[梯度提升树算法] --> B2[决策树集成<br/>n_estimators=300]
+        B2 --> B3[正则化机制<br/>L1:0.1, L2:1.0]
+        B3 --> B4[早停策略<br/>防止过拟合]
+        B4 --> B5[交叉验证<br/>5-fold CV]
+    end
+
+    subgraph "📈 模型性能评估"
+        C1[训练集评估<br/>R²: 0.997, MAE: 2.3] --> C2[验证集评估<br/>R²: 0.78, MAE: 17.5]
+        C2 --> C3[测试集评估<br/>R²: 0.52, MAE: 26.1]
+        C3 --> C4[性能可视化<br/>预测vs真实对比]
+        C4 --> C5[残差分析<br/>误差分布检验]
+    end
+
+    A4 --> B1
+    B5 --> C1
+
+    classDef trainingLayer fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef modelLayer fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px
+    classDef evalLayer fill:#fff8e1,stroke:#ff6f00,stroke-width:2px
+
+    class A1,A2,A3,A4 trainingLayer
+    class B1,B2,B3,B4,B5 modelLayer
+    class C1,C2,C3,C4,C5 evalLayer
+</div></code></pre>
+<h3 id="3-%E5%AE%9E%E6%97%B6%E9%A2%84%E6%B5%8B%E6%9C%8D%E5%8A%A1%E6%B5%81%E7%A8%8B">3. 实时预测服务流程</h3>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+    participant E as 发动机传感器数据
+    participant F as 特征工程服务
+    participant X as XGBoost推理引擎
+    participant T as 预测结果处理
+    participant A as 智能触发器
+    participant M as AI分析引擎
+
+    E->>F: 实时传感器流
+    Note over E,F: T24, T30, T50, P30等15个传感器
+    F->>F: 构建50周期滑动窗口
+    F->>F: 生成750维特征向量
+    F->>X: 特征矩阵输入
+    X->>X: XGBoost模型推理
+    Note over X: 预测时间: <10ms
+    X->>T: RUL预测值
+    T->>A: 发送预测结果
+    A->>A: RUL < 120周期判断
+    alt 需要预警
+        A->>M: 触发AI分析
+        M->>M: 生成健康报告
+    else 正常状态
+        A->>A: 记录监控状态
+    end
+</div></code></pre>
+<h2 id="%E6%99%BA%E8%83%BD%E5%86%B3%E7%AD%96%E4%B8%8E%E9%A3%8E%E9%99%A9%E8%AF%84%E4%BC%B0">智能决策与风险评估</h2>
+<h3 id="1-%E9%A2%84%E6%B5%8B%E7%B2%BE%E5%BA%A6%E4%B8%8E%E7%BD%AE%E4%BF%A1%E5%BA%A6%E8%AF%84%E4%BC%B0">1. 预测精度与置信度评估</h3>
+<pre><code class="language-mermaid"><div class="mermaid">graph LR
+    subgraph "📊 模型性能指标"
+        A1[R²决定系数<br/>0.52+] --> A2[MAE平均绝对误差<br/>26.1周期]
+        A2 --> A3[RMSE均方根误差<br/>36.1周期]
+        A3 --> A4[预测置信度<br/>95%置信区间]
+    end
+
+    subgraph "🎯 预测准确性分析"
+        B1[高精度预测<br/>误差<10周期] --> B2[中等精度预测<br/>误差10-20周期]
+        B2 --> B3[低精度预测<br/>误差>20周期]
+        B3 --> B4[置信度权重调整]
+    end
+
+    A4 --> B1
+
+    classDef performanceLayer fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef accuracyLayer fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px
+
+    class A1,A2,A3,A4 performanceLayer
+    class B1,B2,B3,B4 accuracyLayer
+</div></code></pre>
+<h3 id="2-%E5%A4%9A%E7%BB%B4%E5%BA%A6%E9%A3%8E%E9%99%A9%E8%AF%84%E4%BC%B0%E4%BD%93%E7%B3%BB">2. 多维度风险评估体系</h3>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart TD
+    A[RUL预测值] --> B[风险等级分类]
+
+    B --> C[🚨 高风险<br/>RUL < 30周期]
+    B --> D[⚠️ 中风险<br/>30 ≤ RUL < 60周期]
+    B --> E[✅ 低风险<br/>60 ≤ RUL < 120周期]
+    B --> F[📊 正常<br/>RUL ≥ 120周期]
+
+    C --> G[紧急响应策略<br/>24小时内处理]
+    D --> H[短期维护计划<br/>72小时内响应]
+    E --> I[长期监控策略<br/>一周内规划]
+    F --> J[例行维护<br/>正常监控周期]
+
+    subgraph "🔍 评估维度"
+        K1[预测置信度]
+        K2[历史准确率]
+        K3[传感器稳定性]
+        K4[发动机工况]
+    end
+
+    G --> K1
+    H --> K2
+    I --> K3
+    J --> K4
+
+    classDef riskHigh fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef riskMedium fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef riskLow fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef normal fill:#f5f5f5,stroke:#616161,stroke-width:2px
+    classDef evaluate fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px
+
+    class C,G riskHigh
+    class D,H riskMedium
+    class E,I riskLow
+    class F,J normal
+    class K1,K2,K3,K4 evaluate
+</div></code></pre>
+<h2 id="%E6%8A%80%E6%9C%AF%E6%A0%88%E4%B8%8E%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87">技术栈与性能指标</h2>
+<h3 id="1-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%8A%80%E6%9C%AF%E6%A0%88">1. 机器学习技术栈</h3>
+<ul>
+<li><strong>核心算法</strong>: XGBoost Gradient Boosting</li>
+<li><strong>特征工程</strong>: 滑动窗口时序特征 (50周期×15传感器)</li>
+<li><strong>数据处理</strong>: Pandas, NumPy, Scikit-learn</li>
+<li><strong>模型优化</strong>: 网格搜索超参数调优, 交叉验证</li>
+<li><strong>性能表现</strong>: R²=0.52+, MAE=26.1周期, 推理&lt;10ms</li>
+</ul>
+<h3 id="2-%E7%B3%BB%E7%BB%9F%E9%9B%86%E6%88%90%E6%9E%B6%E6%9E%84">2. 系统集成架构</h3>
+<ul>
+<li><strong>数据层</strong>: NASA C-MAPS数据集 → 时序数据库</li>
+<li><strong>计算层</strong>: XGBoost推理引擎 → 特征工程服务</li>
+<li><strong>决策层</strong>: 智能触发机制 → AI Agent分析</li>
+<li><strong>应用层</strong>: 报告生成系统 → 通知分发服务</li>
+</ul>
+<h3 id="3-%E6%80%A7%E8%83%BD%E7%9B%91%E6%8E%A7%E4%BD%93%E7%B3%BB">3. 性能监控体系</h3>
+<pre><code class="language-mermaid"><div class="mermaid">graph TB
+    subgraph "📈 系统性能指标"
+        A1[预测延迟 < 10ms] --> A2[处理吞吐量 > 1000/秒]
+        A2 --> A3[系统可用性 > 99.9%]
+        A3 --> A4[内存使用率 < 80%]
+    end
+
+    subgraph "🎯 业务性能指标"
+        B1[预测准确率 R² > 0.52] --> B2[预警及时性 提前45天]
+        B2 --> B3[误报率 < 5%]
+        B3 --> B4[报告生成时间 < 3秒]
+    end
+
+    A4 --> B1
+
+    classDef systemPerf fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef businessPerf fill:#fff8e1,stroke:#ff6f00,stroke-width:2px
+
+    class A1,A2,A3,A4 systemPerf
+    class B1,B2,B3,B4 businessPerf
+</div></code></pre>
+<h2 id="%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%8E%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86">数据流与状态管理</h2>
+<pre><code class="language-mermaid"><div class="mermaid">stateDiagram-v2
+    [*] --> 时序数据接收
+    时序数据接收 --> 特征工程处理
+    特征工程处理 --> XGBoost预测
+    XGBoost预测 --> 预测结果验证
+
+    预测结果验证 --> 风险评估: RUL < 120
+    预测结果验证 --> 正常监控: RUL >= 120
+
+    风险评估 --> AI智能分析
+    AI智能分析 --> 专业报告生成
+    专业报告生成 --> 决策建议输出
+    决策建议输出 --> 反馈学习优化
+    反馈学习优化 --> [*]
+
+    正常监控 --> [*]
+
+    state 特征工程处理 {
+        [*] --> 数据标准化
+        数据标准化 --> 传感器选择
+        传感器选择 --> 滑动窗口构建
+        滑动窗口构建 --> 特征向量化
+        特征向量化 --> [*]
+    }
+
+    state AI智能分析 {
+        [*] --> 风险等级判定
+        风险等级判定 --> 健康评分计算
+        健康评分计算 --> 维护建议生成
+        维护建议生成 --> 报告结构化
+        报告结构化 --> [*]
+    }
+</div></code></pre>
+<h2 id="%E6%A8%A1%E5%9E%8B%E7%AE%A1%E7%90%86%E4%B8%8E%E6%8C%81%E7%BB%AD%E4%BC%98%E5%8C%96">模型管理与持续优化</h2>
+<h3 id="1-%E6%A8%A1%E5%9E%8B%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86">1. 模型版本管理</h3>
+<ul>
+<li><strong>版本控制</strong>: Git + MLflow模型追踪</li>
+<li><strong>超参数管理</strong>: Optuna贝叶斯优化</li>
+<li><strong>性能基准</strong>: 建立模型性能基准线</li>
+<li><strong>回滚机制</strong>: 支持模型版本快速回滚</li>
+</ul>
+<h3 id="2-%E5%9C%A8%E7%BA%BF%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%87%AA%E9%80%82%E5%BA%94">2. 在线学习与自适应</h3>
+<pre><code class="language-mermaid"><div class="mermaid">graph LR
+    A[新预测数据] --> B[模型性能监控]
+    B --> C[性能退化检测]
+    C -->|性能下降| D[触发模型重训练]
+    C -->|性能稳定| E[继续监控]
+    D --> F[增量学习更新]
+    F --> G[模型验证部署]
+    G --> A
+    E --> A
+</div></code></pre>
+<p>这个重新平衡的系统架构强调了机器学习核心技术的比重，详细展示了XGBoost模型的训练、验证和推理过程，突出了滑动窗口特征工程的技术细节，同时简化了工作流部分的描述，实现了技术架构的合理分配。</p>
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+{
+  "name": "NASA-Jet Engine-RUL-notification",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e44aa170-ccc3-4530-8e91-51fb35b5ecff",
+              "name": "body.timestamp",
+              "value": "={{ $json.body.timestamp }}",
+              "type": "string"
+            },
+            {
+              "id": "4c9c4e8d-ad96-4484-98bc-acc595b6aa68",
+              "name": "body.engine_id",
+              "value": "={{ $json.body.engine_id }}",
+              "type": "number"
+            },
+            {
+              "id": "5d4c9bcd-a99b-489e-bdb6-3ec2f337f3fb",
+              "name": "body.prediction.predicted_rul",
+              "value": "={{ $json.body.prediction.predicted_rul }}",
+              "type": "number"
+            },
+            {
+              "id": "c6839e5f-2386-4c1c-87b1-fed3cbc49319",
+              "name": "body.prediction.processing_time_seconds",
+              "value": "={{ $json.body.prediction.processing_time_seconds }}",
+              "type": "number"
+            },
+            {
+              "id": "cbb83c88-4f17-43cc-bb59-50b7e70f8b0e",
+              "name": "body.prediction.window_size",
+              "value": "={{ $json.body.prediction.window_size }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "11ef4986-25b6-4109-a0a2-118482a79345",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fromEmail": "erxuanhe@126.com",
+        "toEmail": "xuanhe.er@siemens.com",
+        "subject": "Notice-发动机健康退化预警报告",
+        "html": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1136,
+        -48
+      ],
+      "id": "620035d8-c8e5-433a-babe-8e31e807f82f",
+      "name": "Send email",
+      "webhookId": "ca0f298b-fae2-433e-a654-85064b3e9fb5",
+      "credentials": {
+        "smtp": {
+          "id": "uwTnbqZm93B001L4",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "30ca0cd3-edac-4759-a327-0c6fef81a901",
+              "leftValue": "={{ $json.body.prediction.predicted_rul }}",
+              "rightValue": 120,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        -32
+      ],
+      "id": "9bbb8a6d-87a1-4d2a-b73e-7574e903b646",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=你是发动机健康监测专家AI助手，负责处理RUL预警数据并协调大模型生成专业Markdown健康分析报告。\n\n接收RUL预测数据（发动机ID、预测RUL值），当预测RUL < 120周期时执行数据验证、风险评估、报告构建、大模型协调和结果验证。\n\n\n仅当 RUL < 120 周期时生成报告\n验证发动机ID和RUL值有效性\n输出必须为Markdown格式\n\n\n风险等级划分：\n  - 🚨 高风险：RUL < 30周期\n  - ⚠️ 中风险：30 ≤ RUL < 60周期\n  - ✅ 低风险：60 ≤ RUL < 120周期\n- 评分标准：健康评分0-100分\n\n输出规范：生成专业Markdown格式发动机健康分析报告\n\nMarkdown报告模板如下:\n\n```markdown\n# 📊 发动机健康监测报告 - engine: {{ $json.body.engine_id }}\n\n## 🚨 预警信息\n- **发动机ID**: {{ $json.body.engine_id }}\n- **预测RUL**: {{ $json.body.prediction.predicted_rul.toString().slice(0,5) }} 周期\n- **报告时间**: {{ $json.body.timestamp.slice(0,19) }}\n\n## 📋 执行摘要\n\n### 核心发现\n- 发动机{{ $json.body.engine_id }}当前状态为退化告警，预计剩余使用寿命{{ $json.body.prediction.predicted_rul.toString().slice(0,5) }} 周期\n- 健康评分[评分]分，处于[运行状态]\n\n### 风险评估\n（此处按如下格式生成表格）\n| 指标 | 数值 | 状态 |\n|------|------|------|\n| 预测RUL | [RUL值] 周期 | [状态标识] [状态] |\n| 健康评分 | [评分]/100 | [状态标识] [状态] |\n| 可靠性指数 | [指数值] | [状态标识] [状态] |\n\n### 主要建议\n1. [建议1]\n2. [建议2]\n3. [建议3]\n\n## 🔍 健康评估详情\n\n\n\n## 📈 维护建议\n\n### 维护计划\n| 时间 | 维护项目 | 优先级 |\n|------|----------|--------|\n| [时间1] | [项目1] | [优先级1] |\n| [时间2] | [项目2] | [优先级2] |\n| [时间3] | [项目3] | [优先级3] |\n...\n### 具体措施\n1. **[措施名称]** ([时间])\n   - [步骤1]\n   - [步骤2]\n   - [步骤3]\n...\n2. **[措施名称]** ([时间])\n   - [步骤1]\n   - [步骤2]\n   - [步骤3]\n...\n## 📊 技术附录\n\n### 数据来源\n- XGBoost预测模型\n- 实时传感器数据预测RUL\n\n---\n*报告生成时间: {{ $json.body }}*\n*系统版本: n8n *\n*处理时间: {{ $json.body.prediction.processing_time_seconds.toString().slice(0,7) }} 秒\n```\n\n通用要求：\n- 你的回到中不允许包含```markdown或```字符\n- 你的回答中只包含markdown格式内容，不包含任何其他内容\n\n确保所有列出的信息（新闻的各项数据）都准确来源于我给你提供的信息。\n\n你的建议要具体、有建设性、信息充分，并体现出是对所有信息的综合考量，\n\n语气要积极、专业，充满洞察力，整体风格体现出采取行动的紧迫性。",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        480,
+        -48
+      ],
+      "id": "8f29bc8a-23de-4a4c-a1a7-7c32f5d2a2b3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        480,
+        128
+      ],
+      "id": "855a7422-75b9-40f8-ac0b-37d9ebf1953a",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "5mVd7IMNeA62l1kR",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e72eda5c-1e4b-4466-8c0b-b3d385119a78",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        -32
+      ],
+      "id": "a0fabadb-6bd4-4787-9f33-7f02017d4755",
+      "name": "Webhook",
+      "webhookId": "e72eda5c-1e4b-4466-8c0b-b3d385119a78"
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        848,
+        -48
+      ],
+      "id": "705fc1ba-1f8a-4b45-8c0b-9a1bbf790bc9",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "content": "### 运行周期数据更新不断触发Webhook\n\n\n\n\n\n\n\n\n工作流被激活",
+        "height": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -128
+      ],
+      "id": "1b59f79c-91cd-4fff-9ef3-27e537c1e9a2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### 获取关注特征数据\n",
+        "height": 256,
+        "width": 160,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -128
+      ],
+      "id": "21786a92-658f-4f05-ae42-0f1805719114",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### 过滤出预测RUL过低（发动机退化）数据\n",
+        "height": 256,
+        "width": 192,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -128
+      ],
+      "id": "49665cc9-3573-422e-a76a-ddfa4bf466d5",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### 智能体通过本地发动机知识库微调后推理大模型对异常数据进行多维度智能分析生成健康告警报告\n",
+        "height": 384,
+        "width": 304,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -128
+      ],
+      "id": "a21a64e0-37b1-4a00-bd97-79f914c60be0",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "### 报告发送前置格式处理\n",
+        "height": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        784,
+        -128
+      ],
+      "id": "2e52def2-961f-4b69-a214-7c05fbfafee0",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "### 报告发送给Stakeholder\n",
+        "height": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        -128
+      ],
+      "id": "e5c2471d-7f84-43f0-96dd-a4dc1701b7ff",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4893e840-0597-45df-aadc-518097d2503d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "033634a590d3ac3cf1ca8ce275369790a5ab6ba54dcd116bc13bcfef48910e88"
+  },
+  "id": "rsUI4tucnjKKii4q",
+  "tags": []
+}
